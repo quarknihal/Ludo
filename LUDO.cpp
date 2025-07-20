@@ -16,7 +16,6 @@ int dice() {
 
 class LUDO {
 public:
-	int i, j;
 	string red = "\033[1;31mR\033[0m";
 	string blue = "\033[1;34mB\033[0m";
 
@@ -24,7 +23,15 @@ public:
 	string hor2 = "+   +---+---+   +---+---+---+   +---+---+   +";
 	string hor3 = "+---+---+---+---+---+   +---+---+---+---+---+";
 
-	
+	vector<pair<int, int>> pathRed = {
+		{9, 4}, {8, 4}, {7, 4}, {6, 4}, {6, 3}, {6, 2}, {6, 1}, {6, 0}, {5, 0}, {4, 0},
+		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {0, 6},
+		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
+		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {9, 5}, {8, 5}, {7, 5}, {6, 5}
+	};
+	vector<pair<int, int>> win_pts = {{10, 5}};
+	vector<pair<int, int>> tokenOutPosRed = {{9, 4}};
+	int currentPos = 0;
 
 	string arr[11][11] = {
 		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
@@ -66,7 +73,55 @@ public:
 		cout << hor1 << endl;
 	}
 
-	
+	bool tokenOut(){
+		int i, j;
+		
+		cout<<"Roll the Die: (Press Enter)";
+		char enter;
+		cin.get(enter);
+
+		int num = dice();
+		if (enter == '\n'){
+			cout<<num<<endl;
+		}
+
+		if (num == 1 || num == 6){
+			i = tokenOutPosRed[0].first;
+			j = tokenOutPosRed[0].second;
+			arr[i][j] = red;
+			return true;
+		}
+		else {
+			cout << "You need to roll a 1 or 6 to get your token out!" << endl;
+			return false;
+		}
+		return false;
+	}
+
+	void tokenMove(){
+		int i, j;
+		cout<<"Roll the Die: (Press Enter)";
+		char enter;
+		cin.get(enter);
+
+		int num = dice();
+		
+		if (enter == '\n'){
+			cout<<"Your Die rolled: "<<num<<endl;
+		}
+		int pathSizeRed = pathRed.size();
+
+		i = pathRed[currentPos].first;
+		j = pathRed[currentPos].second;
+		arr[i][j] = " ";
+		// New position
+		currentPos += num;
+		i = pathRed[currentPos].first;
+		j = pathRed[currentPos].second;
+
+		arr[i][j] = red;
+		
+	}
 	
 	void clearScreen(){
 		system("clear");
@@ -75,10 +130,16 @@ public:
 
 int main() {
     LUDO game;
-    game.printBoard();
-	// game.clearScreen();
-	game.printBoard();
-	// game.clearScreen();
-	game.printBoard();
+    while(true){
+		game.printBoard();
+		if (game.tokenOut()){
+			while(true){
+				game.printBoard();
+				game.tokenMove();
+			}
+		}
+
+	}
+
     return 0;
 }
