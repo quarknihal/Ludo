@@ -18,6 +18,8 @@ class LUDO {
 public:
 	string red = "\033[1;31mR\033[0m";
 	string blue = "\033[1;34mB\033[0m";
+	
+	string currentPlayer = "Red";
 
     string hor1 = "+---+---+---+---+---+---+---+---+---+---+---+";
 	string hor2 = "+   +---+---+   +---+---+---+   +---+---+   +";
@@ -27,24 +29,23 @@ public:
 		{9, 4}, {8, 4}, {7, 4}, {6, 4}, {6, 3}, {6, 2}, {6, 1}, {6, 0}, {5, 0}, {4, 0},
 		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {0, 6},
 		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
-		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {9, 5}, {8, 5}, {7, 5}, {6, 5}
+		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {9, 5}, {8, 5}, {7, 5}, {6, 5}, {5, 5}
 	};
-	vector<pair<int, int>> win_pts = {{10, 5}};
 	vector<pair<int, int>> tokenOutPosRed = {{9, 4}};
 	int currentPos = 0;
 
 	string arr[11][11] = {
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0" ,"0" ,"1" ,"1" ,"1" ,"0" ,"0" ,"0" ,"0"},
-		{"1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"},
-		{"1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1"},
-		{"1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"},
-		{"0", "0", "0", "0", "1", "1", "1", "0", "0", "0", "0"}
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", "W", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
+		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "}
 	};
 
     void printBoard(){
@@ -76,7 +77,7 @@ public:
 	bool tokenOut(){
 		int i, j;
 		
-		cout<<"Roll the Die: (Press Enter)";
+		cout<<"Roll the Die Player "<<currentPlayer<<"(Press Enter)";
 		char enter;
 		cin.get(enter);
 
@@ -84,8 +85,14 @@ public:
 		if (enter == '\n'){
 			cout<<num<<endl;
 		}
-
-		if (num == 1 || num == 6){
+		
+		if (num == 1){
+			i = tokenOutPosRed[0].first;
+			j = tokenOutPosRed[0].second;
+			arr[i][j] = red;
+			return true;
+		}
+		else if (num == 6){	
 			i = tokenOutPosRed[0].first;
 			j = tokenOutPosRed[0].second;
 			arr[i][j] = red;
@@ -102,25 +109,38 @@ public:
 		int i, j;
 		cout<<"Roll the Die: (Press Enter)";
 		char enter;
-		cin.get(enter);
+		cin.get(enter); // For getting a newline as an input
 
-		int num = dice();
+		int num = dice(); //For generating a random number between 1 and 6
 		
 		if (enter == '\n'){
 			cout<<"Your Die rolled: "<<num<<endl;
 		}
-		int pathSizeRed = pathRed.size();
-
-		i = pathRed[currentPos].first;
-		j = pathRed[currentPos].second;
-		arr[i][j] = " ";
-		// New position
-		currentPos += num;
-		i = pathRed[currentPos].first;
-		j = pathRed[currentPos].second;
-
-		arr[i][j] = red;
+		int pathSizeRed = pathRed.size(); // sum of all the squares where the red tokens will move
 		
+		i = pathRed[currentPos].first;
+		j = pathRed[currentPos].second;
+		arr[i][j] = " "; // Removing the token from the last position
+		
+		currentPos += num;
+		// New position
+		if (currentPos >= pathSizeRed){
+			cout<<"You need to roll less than or equal to "<<currentPos-pathSizeRed<<" to win\n";
+			currentPos -= num;
+			arr[i][j] = red; // again making the cell red so the space isnt cleared.
+		}
+		else{
+			i = pathRed[currentPos].first;
+			j = pathRed[currentPos].second;
+
+			arr[i][j] = red; // Printing the red token in the new position according to the dice
+		}
+
+		
+	}
+
+	void switchPlayer(){
+		currentPlayer = (currentPlayer=="Red") ? "Blue" : "Red";
 	}
 	
 	void clearScreen(){
@@ -138,8 +158,6 @@ int main() {
 				game.tokenMove();
 			}
 		}
-
 	}
-
     return 0;
 }
