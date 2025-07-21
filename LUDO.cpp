@@ -31,8 +31,18 @@ public:
 		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
 		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {9, 5}, {8, 5}, {7, 5}, {6, 5}, {5, 5}
 	};
-	vector<pair<int, int>> tokenOutPosRed = {{9, 4}};
-	int currentPos = 0;
+	vector<pair<int, int>> tokenOutPosRed = {pathRed.at(0)};
+	int currentPosRed = 0;
+
+	vector<pair<int, int>> pathBlue = {
+		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
+		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {10, 4},
+		{9, 4}, {8, 4}, {7, 4}, {6, 4}, {6, 3}, {6, 2}, {6, 1}, {6, 0}, {5, 0}, {4, 0},
+		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5}
+	};
+	vector<pair<int, int>> tokenOutPosBlue = {pathBlue.at(0)};
+	int currentPosBlue = 0;
+
 
 	string arr[11][11] = {
 		{" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
@@ -74,73 +84,112 @@ public:
 		cout << hor1 << endl;
 	}
 
-	bool tokenOut(){
+	int tokenOut(){
 		int i, j;
 		
 		cout<<"Roll the Die Player "<<currentPlayer<<"(Press Enter)";
-		char enter;
-		cin.get(enter);
+		cin.ignore();
 
 		int num = dice();
-		if (enter == '\n'){
-			cout<<num<<endl;
-		}
 		
-		if (num == 1){
-			i = tokenOutPosRed[0].first;
-			j = tokenOutPosRed[0].second;
-			arr[i][j] = red;
-			return true;
+		cout<<num<<endl;
+		
+		if (currentPlayer == "Red"){
+			if (num == 1){
+				i = tokenOutPosRed[0].first;
+				j = tokenOutPosRed[0].second;
+				arr[i][j] = red;
+				return 1;
+			}
+			else if (num == 6){	
+				i = tokenOutPosRed[0].first;
+				j = tokenOutPosRed[0].second;
+				arr[i][j] = red;
+				return 6;
+			}
+			else {
+				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
+				return 0;
+			}
 		}
-		else if (num == 6){	
-			i = tokenOutPosRed[0].first;
-			j = tokenOutPosRed[0].second;
-			arr[i][j] = red;
-			return true;
+		else if (currentPlayer == "Blue"){
+			if (num == 1){
+				i = tokenOutPosBlue[0].first;
+				j = tokenOutPosBlue[0].second;
+				arr[i][j] = blue;
+				return 1;
+			}
+			else if (num == 6){	
+				i = tokenOutPosBlue[0].first;
+				j = tokenOutPosBlue[0].second;
+				arr[i][j] = blue;
+				return 6;
+			}
+			else {
+				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
+				return -1;
+			}
+
 		}
-		else {
-			cout << "You need to roll a 1 or 6 to get your token out!" << endl;
-			return false;
-		}
-		return false;
+		return -1;
 	}
 
 	void tokenMove(){
 		int i, j;
 		cout<<"Roll the Die: (Press Enter)";
-		char enter;
-		cin.get(enter); // For getting a newline as an input
+		cin.ignore();
 
 		int num = dice(); //For generating a random number between 1 and 6
 		
-		if (enter == '\n'){
 			cout<<"Your Die rolled: "<<num<<endl;
-		}
-		int pathSizeRed = pathRed.size(); // sum of all the squares where the red tokens will move
-		
-		i = pathRed[currentPos].first;
-		j = pathRed[currentPos].second;
-		arr[i][j] = " "; // Removing the token from the last position
-		
-		currentPos += num;
-		// New position
-		if (currentPos >= pathSizeRed){
-			cout<<"You need to roll less than or equal to "<<currentPos-pathSizeRed<<" to win\n";
-			currentPos -= num;
-			arr[i][j] = red; // again making the cell red so the space isnt cleared.
-		}
-		else{
-			i = pathRed[currentPos].first;
-			j = pathRed[currentPos].second;
+		if (currentPlayer == "Red"){
+			int pathSizeRed = pathRed.size(); // sum of all the squares where the red tokens will move
+			
+			i = pathRed[currentPosRed].first;
+			j = pathRed[currentPosRed].second;
+			arr[i][j] = " "; // Removing the token from the last position
+			
+			currentPosRed += num;
+			// New position
+			if (currentPosRed >= pathSizeRed){
+				cout<<"You need to roll less than or equal to "<<currentPosRed-pathSizeRed<<" to win\n";
+				currentPosRed -= num;
+				arr[i][j] = red; // again making the cell red so the space isnt cleared.
+			}
+			else{
+				i = pathRed[currentPosRed].first;
+				j = pathRed[currentPosRed].second;
 
-			arr[i][j] = red; // Printing the red token in the new position according to the dice
+				arr[i][j] = red; // Printing the red token in the new position according to the dice
+			}
+		}
+		else if (currentPlayer == "Blue"){
+			int pathSizeBlue = pathBlue.size(); // sum of all the squares where the red tokens will move
+			
+			i = pathBlue[currentPosBlue].first;
+			j = pathBlue[currentPosBlue].second;
+			arr[i][j] = " "; // Removing the token from the last position
+			
+			currentPosBlue += num;
+			// New position
+			if (currentPosBlue >= pathSizeBlue){
+				cout<<"You need to roll less than or equal to "<<currentPosBlue-pathSizeBlue<<" to win\n";
+				currentPosBlue -= num;
+				arr[i][j] = blue; // again making the cell red so the space isnt cleared.
+			}
+			else{
+				i = pathRed[currentPosBlue].first;
+				j = pathRed[currentPosBlue].second;
+
+				arr[i][j] = blue; // Printing the red token in the new position according to the dice
+			}
 		}
 
 		
 	}
 
 	void switchPlayer(){
-		currentPlayer = (currentPlayer=="Red") ? "Blue" : "Red";
+		currentPlayer = (currentPlayer == "Red") ? "Blue" : "Red";
 	}
 	
 	void clearScreen(){
@@ -152,12 +201,20 @@ int main() {
     LUDO game;
     while(true){
 		game.printBoard();
-		if (game.tokenOut()){
-			while(true){
-				game.printBoard();
-				game.tokenMove();
-			}
+		int result = game.tokenOut();
+		if (result == 1){
+			game.printBoard();
+			game.switchPlayer();	
+		}
+		else if (result == 6){
+			game.printBoard();
+			game.tokenMove();
+			game.switchPlayer();
+			
+		}
+		else if (result == -1){
+			game.switchPlayer();
 		}
 	}
     return 0;
-}
+}	
