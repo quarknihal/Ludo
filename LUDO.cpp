@@ -19,6 +19,8 @@ public:
 	string red = "\033[1;31mR\033[0m";
 	string blue = "\033[1;34mB\033[0m";
 	
+	bool isRedOut = false, isBlueOut = false;
+
 	string currentPlayer = "Red";
 
     string hor1 = "+---+---+---+---+---+---+---+---+---+---+---+";
@@ -86,12 +88,12 @@ public:
 
 	int tokenOut(){
 		int i, j;
-		
+
 		cout<<"Roll the Die Player "<<currentPlayer<<"(Press Enter)";
 		cin.ignore();
 
 		int num = dice();
-		
+		int moveOrNot;
 		cout<<num<<endl;
 		
 		if (currentPlayer == "Red"){
@@ -99,6 +101,7 @@ public:
 				i = tokenOutPosRed[0].first;
 				j = tokenOutPosRed[0].second;
 				arr[i][j] = red;
+				isRedOut = true;
 				return 1;
 			}
 			else if (num == 6){	
@@ -109,7 +112,7 @@ public:
 			}
 			else {
 				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
-				return 0;
+				return -1;
 			}
 		}
 		else if (currentPlayer == "Blue"){
@@ -117,6 +120,7 @@ public:
 				i = tokenOutPosBlue[0].first;
 				j = tokenOutPosBlue[0].second;
 				arr[i][j] = blue;
+				isBlueOut =  true;
 				return 1;
 			}
 			else if (num == 6){	
@@ -141,7 +145,8 @@ public:
 
 		int num = dice(); //For generating a random number between 1 and 6
 		
-			cout<<"Your Die rolled: "<<num<<endl;
+		cout<<"Your Die rolled: "<<num<<endl;
+
 		if (currentPlayer == "Red"){
 			int pathSizeRed = pathRed.size(); // sum of all the squares where the red tokens will move
 			
@@ -178,8 +183,8 @@ public:
 				arr[i][j] = blue; // again making the cell red so the space isnt cleared.
 			}
 			else{
-				i = pathRed[currentPosBlue].first;
-				j = pathRed[currentPosBlue].second;
+				i = pathBlue[currentPosBlue].first;
+				j = pathBlue[currentPosBlue].second;
 
 				arr[i][j] = blue; // Printing the red token in the new position according to the dice
 			}
@@ -203,8 +208,15 @@ int main() {
 		game.printBoard();
 		int result = game.tokenOut();
 		if (result == 1){
-			game.printBoard();
-			game.switchPlayer();	
+			if (!game.isRedOut){
+				game.printBoard();
+				game.switchPlayer();
+			}
+			else{
+				game.printBoard();
+				game.tokenMove();
+				game.switchPlayer();
+			}
 		}
 		else if (result == 6){
 			game.printBoard();
