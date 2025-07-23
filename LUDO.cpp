@@ -18,6 +18,7 @@ class LUDO {
 public:
 	string red = "\033[1;31mR\033[0m";
 	string blue = "\033[1;34mB\033[0m";
+
 	vector<string> p1 = {"\033[1;31m+---+---+\033[0m", "\033[1;34m+---+---+\033[0m", "\033[1;32m+---+---+\033[0m", "\033[1;33m+---+---+\033[0m" };
 	vector<string> p2 = {"\033[1;31m+---+\033[0m", "\033[1;34m+---+\033[0m", "\033[1;32m+---+\033[0m", "\033[1;33m+---+\033[0m" };
 	string p3 = "\033[1;33m---+---+---+---+\033[0m";
@@ -29,9 +30,8 @@ public:
 	string currentPlayer = "Red";
 
     string hor1 = "+---+---+---+---+---+---+---+---+---+---+---+";
-	string hor2 = "+   +---+---+   +---+---+---+   +---+---+   +";
-	string hor3 = "+---+---+---+---+---+   +---+---+---+---+---+";
 
+	vector<pair<int, int>> homeRed = {{8, 1}, {8, 2}, {9, 1}, {9, 2}};
 	vector<pair<int, int>> pathRed = {
 		{9, 4}, {8, 4}, {7, 4}, {6, 4}, {6, 3}, {6, 2}, {6, 1}, {6, 0}, {5, 0}, {4, 0},
 		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {0, 6},
@@ -41,6 +41,7 @@ public:
 	vector<pair<int, int>> tokenOutPosRed = {pathRed.at(0)};
 	int currentPosRed = 0;
 
+	vector<pair<int, int>> homeBlue = {{1, 8}, {1, 9}, {2, 8}, {2, 9}};
 	vector<pair<int, int>> pathBlue = {
 		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
 		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {10, 4},
@@ -141,8 +142,8 @@ public:
 				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
 				return -1;
 			}
-
 		}
+
 		return -1;
 	}
 
@@ -199,6 +200,31 @@ public:
 		}
 	}
 
+	bool tokenCut(){
+		int i, j;
+	
+		if (pathRed[currentPosRed] == pathBlue[currentPosBlue]){
+			i = pathRed[currentPosRed].first;
+			j = pathRed[currentPosRed].second;
+
+			if (currentPlayer == "Red"){
+				currentPosBlue = 0;
+				isBlueOut = false;
+				arr[i][j] = red;
+				cout<<"Sorry Blue you have to go!\n";
+			}
+
+			else if (currentPlayer == "Blue"){
+				currentPosRed = 0;
+				isRedOut = false;
+				arr[i][j] = blue;
+				cout<<"Sorry Red you have to go!\n";
+			}
+			return true;
+		}
+		return false;
+	}
+
 	bool winCondition(){
 		if (pathRed.size() == currentPosRed+1){
 			return true;
@@ -229,6 +255,9 @@ int main() {
 		if (game.currentPlayer == "Red" && game.isRedOut){
 			game.tokenMove();
 			game.printBoard();
+			if (game.tokenCut()){
+				continue;
+			}
 			if (game.winCondition()){
 				cout<<"You win Player Red!\n";
 				break;
@@ -239,6 +268,9 @@ int main() {
 		else if (game.currentPlayer == "Blue" && game.isBlueOut){
 			game.tokenMove();
 			game.printBoard();
+			if (game.tokenCut()){
+				continue;
+			}
 			if (game.winCondition()){
 				cout<<"You win Player Blue!\n";
 				break;
