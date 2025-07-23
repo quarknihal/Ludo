@@ -40,7 +40,7 @@ public:
 		{1, 6}, {2, 6}, {3, 6}, {4, 6}, {4, 7}, {4, 8}, {4, 9}, {4, 10}, {5, 10}, {6, 10},
 		{6, 9}, {6, 8}, {6, 7}, {6, 6}, {7, 6}, {8, 6}, {9, 6}, {10, 6}, {10, 5}, {10, 4},
 		{9, 4}, {8, 4}, {7, 4}, {6, 4}, {6, 3}, {6, 2}, {6, 1}, {6, 0}, {5, 0}, {4, 0},
-		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5}
+		{4, 1}, {4, 2}, {4, 3}, {4, 4}, {3, 4}, {2, 4}, {1, 4}, {0, 4}, {0, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5}, {5, 5}
 	};
 	vector<pair<int, int>> tokenOutPosBlue = {pathBlue.at(0)};
 	int currentPosBlue = 0;
@@ -93,43 +93,46 @@ public:
 		cin.ignore();
 
 		int num = dice();
-		int moveOrNot;
-		cout<<num<<endl;
+		cout<<"Your die rolled: "<<num<<endl;
 		
 		if (currentPlayer == "Red"){
 			if (num == 1){
+				isRedOut = true;
 				i = tokenOutPosRed[0].first;
 				j = tokenOutPosRed[0].second;
 				arr[i][j] = red;
-				isRedOut = true;
 				return 1;
 			}
 			else if (num == 6){	
+				isRedOut = true;
 				i = tokenOutPosRed[0].first;
 				j = tokenOutPosRed[0].second;
 				arr[i][j] = red;
 				return 6;
 			}
 			else {
+				isRedOut = false;
 				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
 				return -1;
 			}
 		}
 		else if (currentPlayer == "Blue"){
 			if (num == 1){
+				isBlueOut =  true;
 				i = tokenOutPosBlue[0].first;
 				j = tokenOutPosBlue[0].second;
 				arr[i][j] = blue;
-				isBlueOut =  true;
 				return 1;
 			}
 			else if (num == 6){	
+				isBlueOut = true;
 				i = tokenOutPosBlue[0].first;
 				j = tokenOutPosBlue[0].second;
 				arr[i][j] = blue;
 				return 6;
 			}
 			else {
+				isBlueOut = false;
 				cout << "You need to roll a 1 or 6 to get your token out!" << endl;
 				return -1;
 			}
@@ -140,7 +143,7 @@ public:
 
 	void tokenMove(){
 		int i, j;
-		cout<<"Roll the Die: (Press Enter)";
+		cout<<"Roll the Die to move  it Player "<<currentPlayer<<": (Press Enter)";
 		cin.ignore();
 
 		int num = dice(); //For generating a random number between 1 and 6
@@ -157,8 +160,8 @@ public:
 			currentPosRed += num;
 			// New position
 			if (currentPosRed >= pathSizeRed){
-				cout<<"You need to roll less than or equal to "<<currentPosRed-pathSizeRed<<" to win\n";
 				currentPosRed -= num;
+				cout<<"You need to roll less than or equal to "<<pathSizeRed-currentPosRed-1<<" to win\n";
 				arr[i][j] = red; // again making the cell red so the space isnt cleared.
 			}
 			else{
@@ -169,28 +172,39 @@ public:
 			}
 		}
 		else if (currentPlayer == "Blue"){
-			int pathSizeBlue = pathBlue.size(); // sum of all the squares where the red tokens will move
+			int pathSizeBlue = pathBlue.size(); 
 			
 			i = pathBlue[currentPosBlue].first;
 			j = pathBlue[currentPosBlue].second;
-			arr[i][j] = " "; // Removing the token from the last position
+			arr[i][j] = " ";
 			
 			currentPosBlue += num;
 			// New position
 			if (currentPosBlue >= pathSizeBlue){
-				cout<<"You need to roll less than or equal to "<<currentPosBlue-pathSizeBlue<<" to win\n";
 				currentPosBlue -= num;
-				arr[i][j] = blue; // again making the cell red so the space isnt cleared.
+				cout<<"You need to roll less than or equal to "<<pathSizeBlue-currentPosBlue-1<<" to win\n";
+				arr[i][j] = blue; 
 			}
 			else{
 				i = pathBlue[currentPosBlue].first;
 				j = pathBlue[currentPosBlue].second;
 
-				arr[i][j] = blue; // Printing the red token in the new position according to the dice
+				arr[i][j] = blue; 
 			}
 		}
+	}
 
-		
+	bool winCondition(){
+		if (pathRed.size() == currentPosRed+1){
+			return true;
+		}
+		else if (pathBlue.size() == currentPosBlue+1){
+			return true;
+		}
+		else{
+			return false;
+		}
+		return false;
 	}
 
 	void switchPlayer(){
@@ -204,29 +218,45 @@ public:
 
 int main() {
     LUDO game;
+	game.printBoard();
     while(true){
-		game.printBoard();
-		int result = game.tokenOut();
-		if (result == 1){
-			if (!game.isRedOut){
+
+		if (game.currentPlayer == "Red" && game.isRedOut){
+			game.tokenMove();
+			game.printBoard();
+			if (game.winCondition()){
+				cout<<"You win Player Red!\n";
+				break;
+			}
+			game.switchPlayer();
+		}
+
+		else if (game.currentPlayer == "Blue" && game.isBlueOut){
+			game.tokenMove();
+			game.printBoard();
+			if (game.winCondition()){
+				cout<<"You win Player Blue!\n";
+				break;
+			}
+			game.switchPlayer();
+		}
+		else{
+			int result = game.tokenOut();
+			if (result == 1){
 				game.printBoard();
 				game.switchPlayer();
 			}
-			else{
+			else if (result == 6){
 				game.printBoard();
 				game.tokenMove();
+				game.printBoard();
+				game.switchPlayer();
+				
+			}
+			else if (result == -1){
 				game.switchPlayer();
 			}
-		}
-		else if (result == 6){
-			game.printBoard();
-			game.tokenMove();
-			game.switchPlayer();
-			
-		}
-		else if (result == -1){
-			game.switchPlayer();
-		}
+		}	
 	}
     return 0;
 }	
